@@ -221,6 +221,7 @@
 ./usr/lib/librumpnet_gif_g.a			comp-c-debuglib		debuglib,rump
 ./usr/lib/librumpnet_ipsec_g.a			comp-c-debuglib		debuglib,rump
 ./usr/lib/librumpnet_l2tp_g.a			comp-c-debuglib		debuglib,rump
+./usr/lib/librumpnet_lagg_g.a			comp-c-debuglib		debuglib,rump
 ./usr/lib/librumpnet_local_g.a			comp-c-debuglib		debuglib,rump
 ./usr/lib/librumpnet_net80211_g.a		comp-c-debuglib		debuglib,rump
 ./usr/lib/librumpnet_net_g.a			comp-c-debuglib		debuglib,rump

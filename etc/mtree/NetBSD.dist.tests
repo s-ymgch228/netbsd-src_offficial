@@ -358,6 +358,7 @@
 ./usr/tests/net/if_gif
 ./usr/tests/net/if_ipsec
 ./usr/tests/net/if_l2tp
+./usr/tests/net/if_lagg
 ./usr/tests/net/if_loop
 ./usr/tests/net/if_pppoe
 ./usr/tests/net/if_tap

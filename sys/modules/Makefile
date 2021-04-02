@@ -81,6 +81,7 @@ SUBDIR+=	if_gif
 SUBDIR+=	if_gre
 SUBDIR+=	if_kue
 SUBDIR+=	if_l2tp
+SUBDIR+=	if_lagg
 SUBDIR+=	if_loop
 SUBDIR+=	if_mpls
 SUBDIR+=	if_mue

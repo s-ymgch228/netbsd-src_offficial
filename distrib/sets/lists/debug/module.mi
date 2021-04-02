@@ -186,6 +186,8 @@
 ./usr/libdata/debug/@MODULEDIR@/if_kue/if_kue.kmod.debug		modules-base-kernel	kmod,debug
 ./usr/libdata/debug/@MODULEDIR@/if_l2tp				modules-base-kernel	kmod,debug
 ./usr/libdata/debug/@MODULEDIR@/if_l2tp/if_l2tp.kmod.debug		modules-base-kernel	kmod,debug
+./usr/libdata/debug/@MODULEDIR@/if_lagg				modules-base-kernel	kmod,debug
+./usr/libdata/debug/@MODULEDIR@/if_lagg/if_lagg.kmod.debug		modules-base-kernel	kmod,debug
 ./usr/libdata/debug/@MODULEDIR@/if_loop				modules-base-kernel	kmod,debug
 ./usr/libdata/debug/@MODULEDIR@/if_loop/if_loop.kmod.debug		modules-base-kernel	kmod,debug
 ./usr/libdata/debug/@MODULEDIR@/if_mpls				modules-base-kernel	kmod,debug

@@ -7,8 +7,9 @@ TESTSDIR=	${TESTSBASE}/net
 TESTS_SUBDIRS=		fdpass in_cksum net sys
 .if (${MKRUMP} != "no") && !defined(BSD_MK_COMPAT_FILE)
 TESTS_SUBDIRS+=		arp bpf bpfilter can carp icmp if if_bridge if_gif
-TESTS_SUBDIRS+=		if_ipsec if_l2tp if_loop if_pppoe if_tap if_tun ipsec
-TESTS_SUBDIRS+=		mcast mpls ndp npf route if_vether if_vlan if_wg
+TESTS_SUBDIRS+=		if_ipsec if_l2tp if_lagg if_loop if_pppoe if_tap
+TESTS_SUBDIRS+=		if_tun if_vether if_vlan if_wg ipsec mcast mpls
+TESTS_SUBDIRS+=		ndp npf route
 .if (${MKSLJIT} != "no")
 TESTS_SUBDIRS+=		bpfjit
 .endif

@@ -2409,6 +2409,7 @@
 ./usr/include/net/if_ieee80211.h		comp-obsolete		obsolete
 ./usr/include/net/if_ipsec.h			comp-c-include
 ./usr/include/net/if_l2tp.h			comp-c-include
+./usr/include/net/if_lagg.h			comp-c-include
 ./usr/include/net/if_llc.h			comp-c-include
 ./usr/include/net/if_media.h			comp-c-include
 ./usr/include/net/if_mpls.h			comp-c-include
@@ -3864,6 +3865,8 @@
 ./usr/lib/librumpnet_ipsec_p.a			comp-c-proflib		rump,profile
 ./usr/lib/librumpnet_l2tp.a			comp-c-lib		rump
 ./usr/lib/librumpnet_l2tp_p.a			comp-c-proflib		rump,profile
+./usr/lib/librumpnet_lagg.a			comp-c-lib		rump
+./usr/lib/librumpnet_lagg_p.a			comp-c-proflib		rump,profile
 ./usr/lib/librumpnet_local.a			comp-c-lib		rump
 ./usr/lib/librumpnet_local_p.a			comp-c-proflib		rump,profile
 ./usr/lib/librumpnet_net.a			comp-c-lib		rump

@@ -1,0 +1,7 @@
+#	$NetBSD: $
+
+ioconf		lagg
+
+include		"conf/files"
+
+pseudo-device   lagg

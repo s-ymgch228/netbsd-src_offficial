@@ -381,6 +381,7 @@ typedef struct ifnet {
 	struct mowner	*if_mowner;	/* ?: who owns mbufs for this interface */
 
 	void		*if_agrprivate;	/* ?: used only when #if NAGR > 0 */
+	void		*if_lagg;	/* ?: used only when #if NLAGG > 0 */
 	void		*if_npf_private;/* ?: associated NPF context */
 
 	/*

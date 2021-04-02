@@ -160,6 +160,11 @@ __KERNEL_RCSID(0, "$NetBSD: if.c,v 1.484 2020/10/15 10:20:44 roy Exp $");
 #include <netinet/ip_carp.h>
 #endif
 
+#include "lagg.h"
+#if NLAGG > 0
+#include <net/lagg/if_laggvar.h>
+#endif
+
 #include <compat/sys/sockio.h>
 
 MALLOC_DEFINE(M_IFADDR, "ifaddr", "interface address");
@@ -2419,6 +2424,11 @@ if_link_state_change_process(struct ifnet *ifp, int link_state)
 #if NBRIDGE > 0
 	if (ifp->if_bridge != NULL)
 		bridge_calc_link_state(ifp->if_bridge);
+#endif
+
+#if NLAGG > 0
+	if (ifp->if_lagg != NULL)
+		lagg_linkstate_changed(ifp);
 #endif
 
 	DOMAIN_FOREACH(dp) {

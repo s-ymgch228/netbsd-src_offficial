@@ -67,3 +67,4 @@ file	netinet6/in6_gif.c		gif & inet6
 file	netinet6/in6_l2tp.c		l2tp & inet6
 
 include	"net/agr/files.agr"
+include	"net/lagg/files.lagg"

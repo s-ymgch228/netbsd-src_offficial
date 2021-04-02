@@ -1435,6 +1435,7 @@ defpseudodev l2tp:	ifnet, ether, arp
 defpseudo canloop:	ifnet
 defpseudo ipsecif:	ifnet		# avoid to confuse ipsec itself option
 defpseudo wg:		ifnet, blake2s, libsodium
+defpseudo lagg:		ifnet, ether
 
 defpseudo sequencer
 defpseudo clockctl

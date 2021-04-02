@@ -563,6 +563,7 @@ in6_ifattach(struct ifnet *ifp, struct ifnet *altifp)
 	switch (ifp->if_type) {
 	case IFT_BRIDGE:
 	case IFT_L2TP:
+	case IFT_IEEE8023ADLAG:
 #ifdef IFT_PFLOG
 	case IFT_PFLOG:
 #endif

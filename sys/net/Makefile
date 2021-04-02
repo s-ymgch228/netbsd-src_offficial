@@ -11,7 +11,7 @@ INCS=	bpf.h bpfjit.h bpfdesc.h dlt.h ethertypes.h if.h if_arc.h if_arp.h \
 	pfil.h pfkeyv2.h pfvar.h ppp-comp.h ppp_defs.h radix.h \
 	raw_cb.h route.h slcompress.h slip.h zlib.h
 
-SUBDIR=	agr npf
+SUBDIR=	agr npf lagg
 
 .include <bsd.kinc.mk>
 

@@ -230,6 +230,7 @@
 ./usr/lib/librumpnet_gif_pic.a			comp-c-piclib		picinstall,rump
 ./usr/lib/librumpnet_ipsec_pic.a		comp-c-piclib		picinstall,rump
 ./usr/lib/librumpnet_l2tp_pic.a			comp-c-piclib		picinstall,rump
+./usr/lib/librumpnet_lagg_pic.a			comp-c-piclib		picinstall,rump
 ./usr/lib/librumpnet_local_pic.a		comp-c-piclib		picinstall,rump
 ./usr/lib/librumpnet_net80211_pic.a		comp-c-piclib		picinstall,rump
 ./usr/lib/librumpnet_net_pic.a			comp-c-piclib		picinstall,rump
