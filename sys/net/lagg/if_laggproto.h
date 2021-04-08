@@ -143,6 +143,44 @@ struct lagg_softc {
 	struct ifnet		 sc_if;
 };
 
+/*
+ * Locking notes:
+ * - sc_lock(LAGG_LOCK()) is an adaptive mutex and protects items
+ *   of struct lagg_softc
+ * - a lock in struct lagg_proto_softc, for example LACP_LOCK(), is
+ *   an adaptive mutex and protects member contained in the struct
+ * - sc_var is protected by both pselialize (sc_psz) and psref (lv_psref)
+ *    - Updates of sc_var is serialized by sc_lock
+ * - Items in sc_ports is protected by both psref (lp_psref) and
+ *   pserialize contained in struct lagg_proto_softc
+ *   - details are discribed in if_laggport.c and if_lagg_lacp.c
+ *   - Updates of items in sc_ports are serialized by sc_lock
+ * - an instance referenced by lp_proto_ctx in struct lagg_port is
+ *   protected by a lock in struct lagg_proto_softc
+ *
+ * Locking order:
+ * - IFNET_LOCK(sc_if) -> LAGG_LOCK -> ETHER_LOCK(sc_if) -> a lock in
+ *   struct lagg_port_softc
+ * - IFNET_LOCK(sc_if) -> LAGG_LOCK -> IFNET_LOCK(lp_ifp)
+ * - Currently, there is no combination of following locks
+ *   - IFNET_LOCK(lp_ifp) and a lock in struct lagg_proto_softc
+ *   - IFNET_LOCK(lp_ifp) and ETHER_LOCK(sc_if)
+ */
+#define LAGG_LOCK(_sc)		mutex_enter(&(_sc)->sc_lock)
+#define LAGG_UNLOCK(_sc)	mutex_exit(&(_sc)->sc_lock)
+#define LAGG_LOCKED(_sc)	mutex_owned(&(_sc)->sc_lock)
+#define LAGG_CLLADDR(_sc)	CLLADDR((_sc)->sc_if.if_sadl)
+
+#define	LAGG_PORTS_FOREACH(_sc, _lp)	\
+    SIMPLEQ_FOREACH((_lp), &(_sc)->sc_ports, lp_entry)
+#define	LAGG_PORTS_FOREACH_SAFE(_sc, _lp, _lptmp)	\
+    SIMPLEQ_FOREACH_SAFE((_lp), &(_sc)->sc_ports, lp_entry, (_lptmp))
+#define LAGG_PORTS_EMPTY(_sc)	SIMPLEQ_EMPTY(&(_sc)->sc_ports)
+#define LAGG_PORT_IOCTL(_lp, _cmd, _data)	\
+	(_lp)->lp_ioctl == NULL ? ENOTTY :	\
+	(_lp)->lp_ioctl((_lp)->lp_ifp, (_cmd), (_data))
+
+
 static inline const void *
 lagg_m_extract(struct mbuf *m, size_t off, size_t reqlen, void *buf)
 {
@@ -172,20 +210,6 @@ lagg_port_xmit(struct lagg_port *lp, struct mbuf *m)
 
 	return if_transmit_lock(lp->lp_ifp, m);
 }
-
-#define LAGG_LOCK(_sc)		mutex_enter(&(_sc)->sc_lock)
-#define LAGG_UNLOCK(_sc)	mutex_exit(&(_sc)->sc_lock)
-#define LAGG_LOCKED(_sc)	mutex_owned(&(_sc)->sc_lock)
-#define LAGG_CLLADDR(_sc)	CLLADDR((_sc)->sc_if.if_sadl)
-
-#define	LAGG_PORTS_FOREACH(_sc, _lp)	\
-    SIMPLEQ_FOREACH((_lp), &(_sc)->sc_ports, lp_entry)
-#define	LAGG_PORTS_FOREACH_SAFE(_sc, _lp, _lptmp)	\
-    SIMPLEQ_FOREACH_SAFE((_lp), &(_sc)->sc_ports, lp_entry, (_lptmp))
-#define LAGG_PORTS_EMPTY(_sc)	SIMPLEQ_EMPTY(&(_sc)->sc_ports)
-#define LAGG_PORT_IOCTL(_lp, _cmd, _data)	\
-	(_lp)->lp_ioctl == NULL ? ENOTTY :	\
-	(_lp)->lp_ioctl((_lp)->lp_ifp, (_cmd), (_data))
 
 static inline bool
 lagg_portactive(struct lagg_port *lp)

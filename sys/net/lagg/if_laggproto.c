@@ -60,6 +60,16 @@ struct lagg_proto_softc {
 	size_t			 psc_nactports;
 };
 
+/*
+ * Locking notes:
+ * - Items of struct lagg_proto_softc is protected by
+ *   psc_lock (an adaptive mutex)
+ * - psc_ports is protected by pserialize (psc_psz)
+ *   - Updates of psc_ports is serialized by sc_lock in
+ *     struct lagg_softc
+ * - Other locking notes are described in if_laggproto.h
+ */
+
 struct lagg_failover {
 	bool		 fo_rx_all;
 };

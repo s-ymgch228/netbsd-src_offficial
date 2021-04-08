@@ -173,6 +173,18 @@ struct lacp_softc {
 	bool			 lsc_multi_linkspeed;
 };
 
+/*
+ * Locking notes:
+ * - Items in struct lacp_softc are protected by
+ *   lsc_lock (an adaptive mutex)
+ * - lsc_activemap is protected by pserialize (lsc_psz)
+ * - Items of struct lagg_port in lsc_portmaps are protected by
+ *   protected by both pserialize (lsc_psz) and psref (lp_psref)
+ * - Updates for lsc_activemap and lsc_portmaps is serialized by
+ *   sc_lock in struct lagg_softc
+ * - Other locking notes are described in if_laggproto.h
+ */
+
 static void	lacp_dprintf(const struct lacp_softc *,
 		    const struct lacp_port *, const char *, ...)
 		    __attribute__((__format__(__printf__, 3, 4)));
