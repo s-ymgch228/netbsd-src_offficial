@@ -1,4 +1,4 @@
-/*	$NetBSD: if_laggvar.h,v 1.2 2021/05/24 06:08:28 yamaguchi Exp $	*/
+/*	$NetBSD: $	*/
 
 /*
  * Copyright (c) 2021 Internet Initiative Japan Inc.
@@ -26,11 +26,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef	_NET_LAGG_IF_LAGGVAR_H_
-#define _NET_LAGG_IF_LAGGVAR_H_
+#ifndef _SYS_HOOK_H_
+#define _SYS_HOOK_H_
 
-extern struct mbuf *
-		(*lagg_input_ethernet_p)(struct ifnet *,
-		    struct mbuf *);
+#include <sys/mutex.h>
 
-#endif
+#define HOOKNAMSIZ	128
+
+struct khook_list;
+struct hook_desc;
+
+typedef struct khook_list	khook_list_t;
+typedef struct hook_desc	khook_t;
+
+khook_list_t	*simplehook_create(int, const char *);
+void		 simplehook_destroy(khook_list_t *);
+int		 simplehook_dohooks(khook_list_t *);
+
+khook_t		*simplehook_establish(khook_list_t *,
+		    void (*)(void *), void *);
+void		 simplehook_disestablish(khook_list_t *,
+		    khook_t *, kmutex_t *);
+bool		 simplehook_has_hooks(khook_list_t *);
+
+#endif /* !_SYS_HOOK_H_ */

@@ -122,6 +122,7 @@ __KERNEL_RCSID(0, "$NetBSD: if.c,v 1.485 2021/05/17 04:07:43 yamaguchi Exp $");
 #include <sys/module_hook.h>
 #include <sys/compat_stub.h>
 #include <sys/msan.h>
+#include <sys/hook.h>
 
 #include <net/if.h>
 #include <net/if_dl.h>
@@ -158,11 +159,6 @@ __KERNEL_RCSID(0, "$NetBSD: if.c,v 1.485 2021/05/17 04:07:43 yamaguchi Exp $");
 #include "carp.h"
 #if NCARP > 0
 #include <netinet/ip_carp.h>
-#endif
-
-#include "lagg.h"
-#if NLAGG > 0
-#include <net/lagg/if_laggvar.h>
 #endif
 
 #include <compat/sys/sockio.h>
@@ -631,8 +627,13 @@ static void
 if_getindex(ifnet_t *ifp)
 {
 	bool hitlimit = false;
+	char xnamebuf[HOOKNAMSIZ];
 
 	ifp->if_index_gen = index_gen++;
+	snprintf(xnamebuf, sizeof(xnamebuf),
+	    "%s-lshk", ifp->if_xname);
+	ifp->if_linkstate_hooks = simplehook_create(IPL_NET,
+	    xnamebuf);
 
 	ifp->if_index = if_index;
 	if (ifindex2ifnet == NULL) {
@@ -1217,8 +1218,6 @@ if_deactivate(struct ifnet *ifp)
 	ifp->if_slowtimo = if_nullslowtimo;
 	ifp->if_drain	 = if_nulldrain;
 
-	ifp->if_link_state_changed = NULL;
-
 	/* No more packets may be enqueued. */
 	ifp->if_snd.ifq_maxlen = 0;
 
@@ -1552,6 +1551,8 @@ restart:
 	ifp->if_ioctl_lock = NULL;
 	mutex_obj_free(ifp->if_snd.ifq_lock);
 	if_stats_fini(ifp);
+	KASSERT(!simplehook_has_hooks(ifp->if_linkstate_hooks));
+	simplehook_destroy(ifp->if_linkstate_hooks);
 
 	splx(s);
 
@@ -2413,23 +2414,7 @@ if_link_state_change_process(struct ifnet *ifp, int link_state)
 	/* Notify that the link state has changed. */
 	rt_ifmsg(ifp);
 
-#if NCARP > 0
-	if (ifp->if_carp)
-		carp_carpdev_state(ifp);
-#endif
-
-	if (ifp->if_link_state_changed != NULL)
-		ifp->if_link_state_changed(ifp, link_state);
-
-#if NBRIDGE > 0
-	if (ifp->if_bridge != NULL)
-		bridge_calc_link_state(ifp->if_bridge);
-#endif
-
-#if NLAGG > 0
-	if (ifp->if_lagg != NULL)
-		lagg_linkstate_changed(ifp);
-#endif
+	simplehook_dohooks(ifp->if_linkstate_hooks);
 
 	DOMAIN_FOREACH(dp) {
 		if (dp->dom_if_link_state_change != NULL)
@@ -2476,6 +2461,23 @@ if_link_state_change_work(struct work *work, void *arg)
 out:
 	splx(s);
 	KERNEL_UNLOCK_UNLESS_NET_MPSAFE();
+}
+
+void *
+if_linkstate_change_establish(struct ifnet *ifp, void (*fn)(void *), void *arg)
+{
+	khook_t *hk;
+
+	hk = simplehook_establish(ifp->if_linkstate_hooks, fn, arg);
+
+	return (void *)hk;
+}
+
+void
+if_linkstate_change_disestablish(struct ifnet *ifp, void *vhook, kmutex_t *lock)
+{
+
+	simplehook_disestablish(ifp->if_linkstate_hooks, vhook, lock);
 }
 
 /*
