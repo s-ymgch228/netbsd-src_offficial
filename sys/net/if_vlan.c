@@ -204,12 +204,13 @@ static int	vlan_unconfig_locked(struct ifvlan *, struct ifvlan_linkmib *);
 static void	vlan_hash_init(void);
 static int	vlan_hash_fini(void);
 static int	vlan_tag_hash(uint16_t, u_long);
-static struct ifvlan_linkmib*	vlan_getref_linkmib(struct ifvlan *,
-    struct psref *);
+static struct ifvlan_linkmib*
+		vlan_getref_linkmib(struct ifvlan *, struct psref *);
 static void	vlan_putref_linkmib(struct ifvlan_linkmib *, struct psref *);
 static void	vlan_linkmib_update(struct ifvlan *, struct ifvlan_linkmib *);
-static struct ifvlan_linkmib*	vlan_lookup_tag_psref(struct ifnet *,
-    uint16_t, struct psref *);
+static struct ifvlan_linkmib*
+		vlan_lookup_tag_psref(struct ifnet *, uint16_t,
+		    struct psref *);
 
 #if !defined(VLAN_TAG_HASH_SIZE)
 #define VLAN_TAG_HASH_SIZE 32
@@ -1518,7 +1519,7 @@ out:
  * given source interface and tag, then run the real packet through the
  * parent's input routine.
  */
-void
+struct mbuf *
 vlan_input(struct ifnet *ifp, struct mbuf *m)
 {
 	struct ifvlan *ifv;
@@ -1543,14 +1544,14 @@ vlan_input(struct ifnet *ifp, struct mbuf *m)
 		     sizeof(struct ether_vlan_header))) == NULL) {
 			printf("%s: no memory for VLAN header, "
 			    "dropping packet.\n", ifp->if_xname);
-			return;
+			return NULL;
 		}
 
 		if (m_makewritable(&m, 0,
 		    sizeof(struct ether_vlan_header), M_DONTWAIT)) {
 			m_freem(m);
 			if_statinc(ifp, if_ierrors);
-			return;
+			return NULL;
 		}
 
 		evl = mtod(m, struct ether_vlan_header *);
@@ -1566,11 +1567,10 @@ vlan_input(struct ifnet *ifp, struct mbuf *m)
 		evl->evl_encap_proto = evl->evl_proto;
 	}
 
+	KASSERT(vid != 0);
 	mib = vlan_lookup_tag_psref(ifp, vid, &psref);
 	if (mib == NULL) {
-		m_freem(m);
-		if_statinc(ifp, if_noproto);
-		return;
+		return m;
 	}
 	KASSERT(mib->ifvm_encaplen == ETHER_VLAN_ENCAP_LEN);
 
@@ -1621,6 +1621,7 @@ vlan_input(struct ifnet *ifp, struct mbuf *m)
 	if_input(&ifv->ifv_if, m);
 out:
 	vlan_putref_linkmib(mib, &psref);
+	return NULL;
 }
 
 /*

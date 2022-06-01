@@ -81,7 +81,7 @@ struct vlanreq {
 #define	SIOCGETVLAN	SIOCGIFGENERIC
 
 #ifdef _KERNEL
-void	vlan_input(struct ifnet *, struct mbuf *);
+struct mbuf *	vlan_input(struct ifnet *, struct mbuf *);
 
 /*
  * Locking notes:

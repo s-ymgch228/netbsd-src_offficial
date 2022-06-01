@@ -1409,7 +1409,8 @@ int	sysctl_ifq(int *name, u_int namelen, void *oldp,
 /* 
  * Hook for if_vlan - needed by if_agr
  */
-MODULE_HOOK(if_vlan_vlan_input_hook, void, (struct ifnet *, struct mbuf *));
+MODULE_HOOK(if_vlan_vlan_input_hook,
+    struct mbuf *, (struct ifnet *, struct mbuf *));
 
 #endif /* _KERNEL */
 
