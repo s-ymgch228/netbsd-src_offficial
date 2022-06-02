@@ -474,8 +474,13 @@ bpf_attach2(struct ifnet *_ifp, u_int _dlt, u_int _hdrlen, struct bpf_if **_dp)
 static __inline void
 bpf_mtap(struct ifnet *_ifp, struct mbuf *_m, u_int _direction)
 {
-	if (_ifp->if_bpf)
-		bpf_ops->bpf_mtap(_ifp->if_bpf, _m, _direction);
+	if (_ifp->if_bpf) {
+		if (_ifp->if_bpf_mtap) {
+			_ifp->if_bpf_mtap(_ifp->if_bpf, _m, _direction);
+		} else {
+			bpf_ops->bpf_mtap(_ifp->if_bpf, _m, _direction);
+		}
+	}
 }
 
 static __inline void

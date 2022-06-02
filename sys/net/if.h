@@ -340,6 +340,8 @@ typedef struct ifnet {
 #define	if_watchdog	if_slowtimo
 	void		(*if_drain)	/* :: routine to release resources */
 			    (struct ifnet *);
+	void		(*if_bpf_mtap)	/* :: bpf routine */
+			    (struct bpf_if *, struct mbuf *, u_int);
 	struct ifaltq	if_snd;		/* q: output queue (includes altq) */
 	struct ifaddr	*if_dl;		/* i: identity of this interface. */
 	const struct sockaddr_dl
