@@ -1502,6 +1502,16 @@ bridge_enqueue(struct bridge_softc *sc, struct ifnet *dst_ifp, struct mbuf *m,
 	KERNEL_UNLOCK_ONE(NULL);
 #endif /* ALTQ */
 
+	if (vlan_has_tag(m) &&
+	    !vlan_is_hwtag_enabled(dst_ifp)) {
+		(void)ether_inject_vlantag(&m, ETHERTYPE_VLAN,
+		    vlan_get_tag(m));
+		if (m == NULL) {
+			if_statinc(&sc->sc_if, if_oerrors);
+			return;
+		}
+	}
+
 	len = m->m_pkthdr.len;
 	mflags = m->m_flags;
 
@@ -2703,6 +2713,10 @@ bridge_ipf(void *arg, struct mbuf **mp, struct ifnet *ifp, int dir)
 			snap = 1;
 		}
 	}
+
+	/* drop VLAN traffic untagged by hardware offloading */
+	if (vlan_has_tag(*mp))
+		goto bad;
 
 	/*
 	 * If we're trying to filter bridge traffic, don't look at anything
